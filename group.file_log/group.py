@@ -58,7 +58,6 @@ while( group_num > 0 ):
                     ll = ll | set(dict_group[group])
                     for q in dict_group[group]:
                         data += q + '\t' + group + '\n'
-                        #print(q,group,sep='\t')
                 else:  # 有交集
                     jj = True
                     break
@@ -70,7 +69,6 @@ while( group_num > 0 ):
             group_al.append(j)
             group_num -= 1
             group_temp.append(groups_raw)
-        #print('------------------------------------------------')
     data += "#  "  
     for g in group_temp:
         data += g + ';'
