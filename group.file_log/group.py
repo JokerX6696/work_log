@@ -43,7 +43,7 @@ for i in group_vs['groups']:
 
 group_num = len(group_vs_new) # 待分组的数目
 group_al = []#已完成的分组
-data = ""
+data = "" 
 split_char = '################################################\n'
 while( group_num > 0 ):
     ll = set()
