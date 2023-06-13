@@ -5,14 +5,16 @@ import pandas as pd
 
 def stat(t,h,l):        
     samples = [h,l]
-
-    temp_df = df[df[h] != df[l]]
+    condition1 = df[h] != df[l]
+    condition2 = df[h] != './.'
+    condition3 = './.' != df[l]
+    temp_df = df[condition1 & condition2 & condition3]
     all_list = last_name + samples + next_name
     temp_df = temp_df[all_list]
     outname = h + '_' + l + '_' + t.replace('annotation.xls','') + '_diff.xls'
     outlist = h + '_' + l + '_' + t.replace('annotation.xls','') +'_diff_genelist.xls'
     out = open(outlist, 'w')
-    temp_df.to_csv(outname, index=False)
+    temp_df.to_csv(outname, index=False, sep='\t')
     gene_list_temp = temp_df['Gene.refGene'].to_list()
     # 修改基因名称
     pattern = 'gene-'
