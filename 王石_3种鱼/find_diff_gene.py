@@ -19,7 +19,7 @@ def stat(t,h,l):
     gene_list = [i.replace(pattern,'') for i in list(set(gene_list_temp)) ]
     g_list = []
     for gene in gene_list:
-        split_gene = gene.split(',')
+        split_gene = re.split(',|;', gene)
         for b in split_gene:
             if b not in g_list:
                 g_list.append(b)
