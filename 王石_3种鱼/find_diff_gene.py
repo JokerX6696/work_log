@@ -4,14 +4,13 @@ import re
 import pandas as pd
 
 def stat(t,h,l):        
-    h = 'F2-1';l = 'F1-1'
     samples = [h,l]
 
     temp_df = df[df[h] != df[l]]
     all_list = last_name + samples + next_name
     temp_df = temp_df[all_list]
-    outname = h + '_' + l + '_' + t + '_' + '_diff.xls'
-    outlist = h + '_' + l + '_' + t + '_' +'_diff_genelist.xls'
+    outname = h + '_' + l + '_' + t + '_diff.xls'
+    outlist = h + '_' + l + '_' + t +'_diff_genelist.xls'
     out = open(outlist, 'w')
     temp_df.to_csv(outname, index=False)
     gene_list_temp = temp_df['Gene.refGene'].to_list()
