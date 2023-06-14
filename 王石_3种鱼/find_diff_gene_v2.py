@@ -4,7 +4,7 @@ import re
 import pandas as pd
 
 def stat(t,h,l):        
-    samples = [h,l]
+    samples = h + l
     h0, h1, h2 = h
     l0, l1, l2 = l
     condition1 = df[h0] == df[h1]
