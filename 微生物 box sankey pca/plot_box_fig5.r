@@ -1,73 +1,102 @@
 rm(list=ls())
-###########################################
-library(grid)
-library(ggplot2)
-
-
-
-
-
-#########################################
-# 并行初始化
-library(ggplot2)
-library(reshape2)
-library(ggimage)
-args<-commandArgs(T)
-
 setwd('D:\\desk\\XMSH_202305_4038')
-args<- c("otu_table_even_L6.txt",
+args<- c("otu_table_even_L2.txt",
          "mapping.txt",
          "diff_boxplot",
          "t")
-
-if (length(args) != 4){
-  cat('Usage: anova_post.hoc.r data.txt mapping.txt results.txt heatmap.txt aov\n aov: anova\n kw: kruskal wallis\n t: t test\n w: wilcoxon \n')
-  q(status=1)
+library(dplyr)
+l=3
+k=1.22
+q='Phylum'
+fun <- function(df,LEVEL){
+  df_sum <- df %>%
+    group_by_at(vars(LEVEL)) %>%
+    summarize(across(names(df)[8:dim(df)[2]], sum, .names = "{.col}"))
+  return(df_sum)
 }
-toBM <- read.table(file = args[1], sep = "\t", header = TRUE, encoding = 'UTF-8')
-
-
-new_df <- toBM
-# 属性矩阵
-lab_df <- data.frame(Taxon=toBM$Taxon)
-
-# Cancer组 矩阵
-cancer <- new_df[,grep('Tumor|HCC',names(new_df))]
-# paracancer组 矩阵
-paracancer <- new_df[,grep('Peritumor',names(new_df))]
-for(num in seq(1,dim(cancer)[2]) ){
-  names(cancer)[num] = paste('cancer','_',num,sep = '')
+#for(q in c('Phylum','Genus','Specie')){}
+# HCC 处理
+HCC <- read.table('宏基因组Abundance_Stat.txt',quote = "", sep = '\t',header = T)
+HCC <- HCC[,c(1:7,grep('HCC',names(HCC)))]
+for(num in seq(8,dim(HCC)[2]) ){
+  names(HCC)[num] = paste('HCC','_',num-7,sep = '')
 }
-for(num in seq(1,dim(paracancer)[2]) ){
-  names(paracancer)[num] = paste('paracancer','_',num,sep = '')
+
+
+# cancer 处理
+cancer <- read.table('Abundance_Stat.filter.anno.xls',quote = "", sep = '\t',header = T)
+cancer <- cancer[,c(1:7,grep('Tumor|HCC',names(cancer)))]
+for(num in seq(8,dim(cancer)[2]) ){
+  names(cancer)[num] = paste('cancer','_',num-7,sep = '')
 }
-df <- data.frame(lab_df,cancer,paracancer)
-pca_df <- df[,-c(1:7)]
-rownames(pca_df) <- df$Specie
-
-samples <- names(df)[2:length(names(df))]
-group <- c(rep('cancer',59),rep('paracancer',30))
-mapping <- data.frame(Sample=samples,Group=group)
-rownames(mapping) <- samples
-a <- df$Taxon
-filedata <- df[,-1]
-rownames(filedata) <- a
 
 
 
 
 
+#########################
+taxon <- c()
+for(i in 1:dim(HCC)[1]){
+  t <- paste(
+    paste('k',HCC[i,1],sep = '__'),
+    paste('p',HCC[i,2],sep = '__'),
+    #paste('c',HCC[i,3],sep = '__'),
+    #paste('o',HCC[i,4],sep = '__'),
+    #paste('f',HCC[i,5],sep = '__'),
+    #paste('g',HCC[i,6],sep = '__'),
+    #paste('s',HCC[i,7],sep = '__'),
+    sep = ';'
+  )
+  taxon <- c(taxon,t)
+}
+HCC <- data.frame(Taxon=taxon,HCC[8:length(HCC)])
+LEVEL = 'Taxon'
+HCC <- fun(HCC,LEVEL)
+rownames(HCC) <- HCC$Taxon 
+
+taxon <- c()
+for(i in 1:dim(cancer)[1]){
+  t <- paste(
+    paste('k',cancer[i,1],sep = '__'),
+    paste('p',cancer[i,2],sep = '__'),
+    #paste('c',cancer[i,3],sep = '__'),
+    #paste('o',cancer[i,4],sep = '__'),
+    #paste('f',cancer[i,5],sep = '__'),
+    #paste('g',cancer[i,6],sep = '__'),
+    #paste('s',cancer[i,7],sep = '__'),
+    sep = ';'
+  )
+  taxon <- c(taxon,t)
+}
+cancer <- data.frame(Taxon=taxon,cancer[8:length(HCC)])
+cancer <- fun(cancer,LEVEL)
+rownames(cancer) <- cancer$Taxon 
 
 
-#mapping <- read.table(args[2], sep="\t",header=F,check.names=F)
-#colnames(mapping) <- mapping[1,]
-#mapping <- mapping[-1,]
-row.names(mapping) <- mapping$Sample
-num <- length(rownames(filedata))
+filedata <- merge(x=cancer,y=HCC,by = 'Taxon')
+rownames(filedata) <- filedata$Taxon
+filedata <- filedata[,-1]
+
+mapping <- data.frame(Sample=names(filedata),Group=sub("_.+","",names(filedata)))
+rownames(mapping) <- names(filedata)
+# ####################
+# LEVEL = q
+# HCC <- fun(HCC,LEVEL)
+# cancer <- fun(cancer,LEVEL)
+# HCC <- HCC[apply(HCC[,-1],1,sum) != 0,]
+# cancer <- cancer[apply(cancer[,-1],1,sum) != 0,]
+# 
 
 
+
+
+
+
+
+
+########################################################################
 #1.计算P值
-
+num <- length(rownames(filedata))
 res <- NULL
 for(i in 1:num){
   if(sd((filedata[i,]))!=0){
@@ -154,7 +183,7 @@ if (nrow(results1) == 0){
 }
 # results1[, 'sum'] <-  rowSums(results1[, mapping$Sample])
 # results1 <- results1[order(-results1$sum), ]
-results1[, name] <- factor(results1[, name], levels = results1[, name])
+results1[, name] <- factor(results1[, name], levels = unique(results1[, name]))
 results1 <- results1[, c(mapping$Sample, 'pvalue', "1", name)]
 results1[, 'plabel'] <- paste0("p = ", round(results1$pvalue, 4))
 results2 <- reshape2::melt(results1, measure=mapping$Sample)
@@ -311,7 +340,7 @@ p <- ggplot(data = a,mapping = aes(x=id,y=log(Abundance * 100, 10),
   theme(plot.margin = margin(t = 0.5,  # 顶部边缘距离
                              r = 5,  # 右边边缘距离
                              b = 8,  # 底部边缘距离
-                             l = 3,  # 左边边缘距离
+                             l = l,  # 左边边缘距离
                              unit = "cm") #设置单位为cm
   )+
   scale_fill_manual(values=mycol2[1:length(my_levels)]) + 
@@ -343,7 +372,7 @@ for(i in levels(a$id)){
     grob = textGrob(i, 
                     gp=gpar(col=col[i, 'color'], lwd=1, cex = 2,
                             lty="dotted", fontfamily="serif"#,fontface="bold"
-                            ),
+                    ),
                     rot=45,
                     hjust=1, vjust=1), 
     data = a,
@@ -371,7 +400,7 @@ p_tmp <- ggplot(col, aes(x=id, y=y, color=Kingdom)) +
   )
 legend_t <- cowplot::get_legend(p_tmp)
 
-p <- p + ggimage::geom_subview(x=nrow(col)*1.0747, y=ymin+unite_p_y*70, subview=legend_t)
+p <- p + ggimage::geom_subview(x=nrow(col)*k, y=ymin+unite_p_y*70, subview=legend_t)
 
 #添加P值
 library(dplyr)
@@ -393,7 +422,7 @@ results1[, 'plabel'] <- paste0("p = ", round(results1$pvalue, 4))
 p_text <- merge(p_text, results1[,c(name, 'plabel')], by.x='id', by.y=name)
 p_text$id <- factor(p_text$id, levels = levels(a$id))
 p <- p+geom_text(data =p_text, aes(x=id, y=p_text_y,
-                              label = plabel ),alpha=1,
+                                   label = plabel ),alpha=1,
                  fontface="italic", color="grey",angle=90,size=4
 )
 
@@ -419,35 +448,5 @@ print(p)
 dev.off()
 
 
-# write.table(heatmap,args[4],sep="\t",quote=F,row.names=F)
-# 
-# outdir <- dirname(gsub(".diff.heatmap.xls", "", args[4]))
-# outname <- basename(gsub(".diff.heatmap.xls", "", args[4]))
-# 
-# if(args[5] == "w" || args[5] == "t") {
-#   s1 <- rownames(mapping)[
-#     mapping[, 1, drop = T] == unique(
-#       mapping[2:nrow(mapping), "Group", drop = T])[1]
-#   ]
-#   s2 <- rownames(mapping)[
-#     mapping[, 1, drop = T] == unique(
-#       mapping[2:nrow(mapping), "Group", drop = T])[2]
-#   ]
-#   m1 <- rowSums(heatmap[, s1, drop = F]) / length(s1)
-#   m2 <- rowSums(heatmap[, s2, drop = F]) / length(s2)
-#   lfc <- log2(m1 / m2)
-#   omics <- merge(heatmap, results[,c('Index', 'pvalue'),drop=F], by.x='Index',by.y='Index')
-#   omics$lfc <- lfc
-#   write.table(
-#     omics,
-#     paste(
-#       c(
-#         file.path(outdir, gsub("\\..*", "", outname)),
-#         paste(unique(mapping[2:nrow(mapping), "Group", drop = T]), collapse = "-"),
-#         "txt"
-#       ),
-#       collapse = "."
-#     ),
-#     sep = "\t", quote = F, row.names = F
-#   )
-# }
+
+
