@@ -9,7 +9,7 @@ def stat(t,h,l):
     l0, l1, l2 = l
     condition1 = df[h0] == df[h1]
     condition2 = df[l0] == df[l1] 
-    condition3 = df[h0] != df[h0] 
+    condition3 = df[h0] != df[l0] 
     condition4 = df[h0] != './.' 
     condition5 = df[h0] == df[h2]
     condition6 = df[l0] != './.' 
