@@ -8,15 +8,14 @@ def stat(t,h,l):
     h0, h1, h2 = h
     l0, l1, l2 = l
     condition1 = df[h0] == df[h1]
-    condition2 = df[l0] == df[l1] 
-    condition3 = df[h0] != df[l0] 
-    condition4 = df[h0] != './.' 
-    condition5 = df[h0] == df[h2]
+    condition2 = df[h0] == df[h2] 
+    condition3 = df[l0] == df[l1] 
+    condition4 = df[l0] == df[l2]
+
+    condition5 = df[h0] != df[l0]
     condition6 = df[l0] != './.' 
-    condition7 = df[l0] == df[l2]
-    #condition1 = df[h] != df[l]
-    #condition2 = df[h] != './.'
-    #condition3 = './.' != df[l]
+    condition7 = df[h0] != './.' 
+
 
     temp_df = df[condition1 & condition2 & condition3 & condition4 & condition5 & condition6 & condition7]
     all_list = last_name + samples + next_name
