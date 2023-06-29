@@ -2,7 +2,7 @@
 import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
-
+# delta K
 # 生成示例数据
 np.random.seed(0)
 X = np.random.rand(100, 2)
