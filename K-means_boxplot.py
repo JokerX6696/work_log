@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
-
+# 绘制box CV error
 # 生成示例数据
 np.random.seed(0)
 X = np.random.rand(100, 2)
