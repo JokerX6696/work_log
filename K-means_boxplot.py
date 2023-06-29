@@ -4,7 +4,7 @@ from sklearn.cluster import KMeans
 
 # 生成示例数据
 np.random.seed(0)
-X = np.random.randn(100, 2)
+X = np.random.rand(100, 2)
 
 # 设置 K 值范围
 k_values = range(2, 11)

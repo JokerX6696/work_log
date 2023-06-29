@@ -22,7 +22,7 @@ for k in range(1, max_clusters+1):
 log_distances = np.log(distances)
 
 # 计算相邻聚类数对应的对数变换值之间的差异
-differences = np.diff(log_distances)
+differences = np.diff(log_distances)  # 
 
 # 找到具有最大差异值的聚类数
 optimal_clusters = np.argmax(differences) + 2  # +2是因为从2开始聚类数递增
@@ -35,3 +35,5 @@ plt.title('Delta K Method')
 plt.show()
 
 print("Optimal number of clusters:", optimal_clusters)
+
+
