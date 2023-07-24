@@ -29,8 +29,8 @@ def stat(t,h,l):
         print(i,file=out)
     out.close
 
-group_high = ['F2-1', 'F2-2', 'F3-3']
-group_low = ['F1-1', 'F1-2', 'F1-3']
+group_high = ['NCRC-F1','F2-1', 'F2-2', 'F3-3']
+group_low = ['CB-3','F1-1', 'F1-2', 'F1-3']
 
 
 indel = 'indel.annotation.xls'

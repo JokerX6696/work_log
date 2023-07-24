@@ -5,23 +5,25 @@ import pandas as pd
 
 def stat(t,h,l):        
     samples = h + l
-    h0, h1, h2 = h
-    l0, l1, l2 = l
+    h0, h1, h2, h3 = h
+    l0, l1, l2, l3 = l
     condition1 = df[h0] == df[h1]
-    condition2 = df[h0] == df[h2] 
-    condition3 = df[l0] == df[l1] 
-    condition4 = df[l0] == df[l2]
+    condition2 = df[h0] == df[h2]
+    condition3 = df[h0] == df[h3]
+    condition4 = df[l0] == df[l1] 
+    condition5 = df[l0] == df[l2]
+    condition6 = df[l0] == df[l3]
 
-    condition5 = df[h0] != df[l0]
-    condition6 = df[l0] != './.' 
-    condition7 = df[h0] != './.' 
+    condition7 = df[h0] != df[l0]
+    condition8 = df[l0] != './.' 
+    condition9 = df[h0] != './.' 
 
 
-    temp_df = df[condition1 & condition2 & condition3 & condition4 & condition5 & condition6 & condition7]
+    temp_df = df[condition1 & condition2 & condition3 & condition4 & condition5 & condition6 & condition7 & condition8 & condition9]
     all_list = last_name + samples + next_name
     temp_df = temp_df[all_list]
-    outname = 'F1_F2' + '_' + t.replace('.annotation.xls','') + '_diff.xls'
-    outlist = 'F1_F2' + '_' + t.replace('.annotation.xls','') +'_diff_genelist.xls'
+    outname = 'F1_F2' + '_' + t.replace('annotation.xls','') + '_diff.xls'
+    outlist = 'F1_F2' + '_' + t.replace('annotation.xls','') +'_diff_genelist.xls'
     out = open(outlist, 'w')
     temp_df.to_csv(outname, index=False, sep='\t')
     gene_list_temp = temp_df['Gene.refGene'].to_list()
@@ -38,8 +40,8 @@ def stat(t,h,l):
         print(i,file=out)
     out.close
 
-group_high = ['F2-1', 'F2-2', 'F3-3']
-group_low = ['F1-1', 'F1-2', 'F1-3']
+group_high = ['NCRC-F1','F2-1', 'F2-2', 'F3-3']
+group_low = ['CB-3','F1-1', 'F1-2', 'F1-3']
 
 
 indel = 'indel.annotation.xls'
